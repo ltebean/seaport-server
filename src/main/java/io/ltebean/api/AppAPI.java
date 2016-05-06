@@ -34,6 +34,7 @@ public class AppAPI {
         App app = findAppBySecret(request.secret);
         CheckUpdatesResponse response = new CheckUpdatesResponse();
         if (app == null) {
+            response.code = CheckUpdatesResponse.StatusCode.INVALID_SECRET.value;
             return response;
         }
         for (CheckUpdatesRequest.PackageRequirement requirement : request.packageRequirements) {

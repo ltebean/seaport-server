@@ -10,7 +10,16 @@ import java.util.List;
  */
 public class CheckUpdatesResponse {
 
-    public int code = 200;
+    public enum StatusCode {
+        SUCCESS(0), INVALID_SECRET(1);
+        public int value;
+        private StatusCode(int value) {
+            this.value = value;
+        }
+    }
+
+
+    public int code = StatusCode.SUCCESS.value;
 
     public List<Package> packages = new ArrayList<>();
 
