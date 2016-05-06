@@ -29,7 +29,7 @@ public class AppAPI {
         return findAppBySecret("test");
     }
 
-    @RequestMapping(value = "/app/{appName}/updates", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/v1/app/{appName}/updates", method = RequestMethod.POST)
     public CheckUpdatesResponse checkUpdates(@RequestBody CheckUpdatesRequest request, @PathVariable("appName") String appName) {
         App app = findAppBySecret(request.secret);
         CheckUpdatesResponse response = new CheckUpdatesResponse();
