@@ -18,9 +18,7 @@ public class CheckUpdatesResponse {
         }
     }
 
-
     public int code = StatusCode.SUCCESS.value;
 
     public List<Package> packages = new ArrayList<>();
-
 }

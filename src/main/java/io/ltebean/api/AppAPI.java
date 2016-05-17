@@ -2,14 +2,25 @@ package io.ltebean.api;
 
 import io.ltebean.api.dto.CheckUpdatesRequest;
 import io.ltebean.api.dto.CheckUpdatesResponse;
+import io.ltebean.api.dto.InfoRequest;
 import io.ltebean.mapper.AppMapper;
 import io.ltebean.mapper.PackageMapper;
 import io.ltebean.model.App;
 import io.ltebean.model.Package;
+import io.ltebean.uploader.Qiniu;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletRequest;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by ltebean on 16/5/6.
@@ -24,14 +35,24 @@ public class AppAPI {
     @Autowired
     AppMapper appMapper;
 
-    @RequestMapping(value = "/package/all", method = RequestMethod.GET)
-    public App test() {
-        return findAppBySecret("test");
+    Qiniu qiniu = new Qiniu();
+
+    @RequestMapping(value = "/api/v1/app/info", method = RequestMethod.POST)
+    public List<Package> getInfo(@RequestBody InfoRequest request) {
+        App app = appMapper.findBySecret(request.secret);
+        if (app == null) {
+            return new ArrayList<>();
+        }
+        return packageMapper.findByAppId(app.id);
     }
 
-    @RequestMapping(value = "/api/v1/app/{appName}/updates", method = RequestMethod.POST)
-    public CheckUpdatesResponse checkUpdates(@RequestBody CheckUpdatesRequest request, @PathVariable("appName") String appName) {
-        App app = findAppBySecret(request.secret);
+
+    @RequestMapping(value = "/api/v1/app/updates", method = RequestMethod.POST)
+    public CheckUpdatesResponse checkUpdates(@RequestBody CheckUpdatesRequest request) {
+        App app = appMapper.findBySecret(request.secret);
+        if (app != null) {
+            app.packages = packageMapper.findByAppId(app.id);
+        }
         CheckUpdatesResponse response = new CheckUpdatesResponse();
         if (app == null) {
             response.code = CheckUpdatesResponse.StatusCode.INVALID_SECRET.value;
@@ -46,11 +67,48 @@ public class AppAPI {
         return response;
     }
 
-    private App findAppBySecret(String secret) {
+
+    @RequestMapping(method = RequestMethod.POST, value = "/api/v1/app/package")
+    public String uploadPackage(@RequestParam("secret") String secret,
+                                @RequestParam("packageName") String packageName,
+                                @RequestParam("packageVersion") String packageVersion,
+                                @RequestParam("file") MultipartFile file,
+                                ServletRequest request) {
+
+
         App app = appMapper.findBySecret(secret);
-        if (app != null) {
-            app.packages = packageMapper.findByAppId(app.id);
+        if (app == null) {
+            return "App not found";
         }
-        return app;
+
+        app.packages = packageMapper.findByAppId(app.id);
+        for (Package pkg : app.packages) {
+            if (pkg.name.equals(packageName) && pkg.version.equals(packageVersion)) {
+                return "Duplicate package";
+            }
+        }
+
+        String tempLocation = "/tmp/" + UUID.randomUUID().toString();
+        try {
+            BufferedOutputStream stream = new BufferedOutputStream(
+                    new FileOutputStream(new File(tempLocation)));
+            FileCopyUtils.copy(file.getInputStream(), stream);
+        } catch (IOException e) {
+            return "Failed to upload";
+        }
+
+        String fileName = file.getOriginalFilename();
+        boolean success = qiniu.upload(app.bucket, tempLocation, fileName);
+        if (!success) {
+            return "Failed to upload to Qiniu";
+        }
+        Package pkg = new Package();
+        pkg.appId = app.id;
+        pkg.name = packageName;
+        pkg.version = packageVersion;
+        pkg.url = app.baseUrl + fileName;
+        packageMapper.create(pkg);
+        return "Success";
+
     }
 }
