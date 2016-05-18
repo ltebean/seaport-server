@@ -2,6 +2,8 @@ CREATE TABLE `App` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
   `secret` varchar(128) NOT NULL DEFAULT '',
+  `bucket` varchar(255) NOT NULL DEFAULT '',
+  `baseUrl` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `secret` (`secret`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
