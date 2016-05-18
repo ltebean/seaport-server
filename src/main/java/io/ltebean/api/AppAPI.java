@@ -1,5 +1,6 @@
 package io.ltebean.api;
 
+import com.github.zafarkhaja.semver.Version;
 import io.ltebean.ServerApplication;
 import io.ltebean.api.dto.CheckUpdatesRequest;
 import io.ltebean.api.dto.CheckUpdatesResponse;
@@ -82,6 +83,11 @@ public class AppAPI {
                                 @RequestParam("file") MultipartFile file,
                                 ServletRequest request) {
 
+        try {
+            Version v = Version.valueOf(packageVersion);
+        } catch (Exception e) {
+            return "invalid version number: " + packageVersion;
+        }
 
         App app = appMapper.findBySecret(secret);
         if (app == null) {
