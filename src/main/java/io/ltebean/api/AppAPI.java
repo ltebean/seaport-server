@@ -1,5 +1,6 @@
 package io.ltebean.api;
 
+import io.ltebean.ServerApplication;
 import io.ltebean.api.dto.CheckUpdatesRequest;
 import io.ltebean.api.dto.CheckUpdatesResponse;
 import io.ltebean.api.dto.InfoRequest;
@@ -8,6 +9,8 @@ import io.ltebean.mapper.PackageMapper;
 import io.ltebean.model.App;
 import io.ltebean.model.Package;
 import io.ltebean.uploader.Qiniu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
@@ -29,16 +32,20 @@ import java.util.UUID;
 @RestController
 public class AppAPI {
 
+    private Logger logger = LoggerFactory.getLogger(AppAPI.class);
+
     @Autowired
     PackageMapper packageMapper;
 
     @Autowired
     AppMapper appMapper;
 
-    Qiniu qiniu = new Qiniu();
+    @Autowired
+    Qiniu qiniu;
 
     @RequestMapping(value = "/api/v1/app/info", method = RequestMethod.POST)
     public List<Package> getInfo(@RequestBody InfoRequest request) {
+        logger.info("test");
         App app = appMapper.findBySecret(request.secret);
         if (app == null) {
             return new ArrayList<>();
@@ -81,6 +88,7 @@ public class AppAPI {
             return "App not found";
         }
 
+        // check duplicate package
         app.packages = packageMapper.findByAppId(app.id);
         for (Package pkg : app.packages) {
             if (pkg.name.equals(packageName) && pkg.version.equals(packageVersion)) {
@@ -88,20 +96,27 @@ public class AppAPI {
             }
         }
 
+        // generate temp file
         String tempLocation = "/tmp/" + UUID.randomUUID().toString();
+        File tempFile = new File(tempLocation);
         try {
             BufferedOutputStream stream = new BufferedOutputStream(
-                    new FileOutputStream(new File(tempLocation)));
+                    new FileOutputStream(tempFile));
             FileCopyUtils.copy(file.getInputStream(), stream);
         } catch (IOException e) {
             return "Failed to upload";
         }
 
+        // upload to qiniu
         String fileName = file.getOriginalFilename();
         boolean success = qiniu.upload(app.bucket, tempLocation, fileName);
         if (!success) {
             return "Failed to upload to Qiniu";
         }
+
+        tempFile.delete();
+
+        // create package
         Package pkg = new Package();
         pkg.appId = app.id;
         pkg.name = packageName;

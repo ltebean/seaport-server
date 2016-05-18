@@ -1,27 +1,49 @@
 package io.ltebean.uploader;
 
 import com.qiniu.common.QiniuException;
-import com.qiniu.http.Response;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by leo on 16/5/17.
  */
+
+@ConfigurationProperties(prefix="qiniu")
+@Component
 public class Qiniu {
 
-    String ACCESS_KEY = "k1k_lcCFc9PzpRSnECppmJbl_KDr5rgmXcBncmXn";
-    String SECRET_KEY = "bA3ZI0LkcE54FeMSmlw2K2OPrltVv4UYm00Ftyfl";
+    @NotEmpty
+    public String accessKey;
 
-    Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
+    @NotEmpty
+    public String secretKey;
+
+    public String getAccessKey() {
+        return accessKey;
+    }
+
+    public void setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
 
     UploadManager uploadManager = new UploadManager();
 
     public boolean upload(String bucket, String filePath, String fileName) {
         try {
+            Auth auth = Auth.create(accessKey, secretKey);
             String token = auth.uploadToken(bucket);
-            //调用put方法上传
-            Response res = uploadManager.put(filePath, fileName, token);
+            uploadManager.put(filePath, fileName, token);
             return true;
         } catch (QiniuException e) {
             return false;
