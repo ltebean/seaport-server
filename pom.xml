@@ -8,6 +8,12 @@
     <artifactId>seaport-server</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <parent>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-parent</artifactId>
+        <version>Angel.SR3</version>
+    </parent>
+
     <build>
         <plugins>
             <plugin>
@@ -26,11 +32,7 @@
         </plugins>
     </build>
 
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.3.5.RELEASE</version>
-    </parent>
+
 
     <dependencies>
         <dependency>
