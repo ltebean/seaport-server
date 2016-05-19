@@ -26,11 +26,11 @@
         </plugins>
     </build>
 
-    <!--<parent>-->
-        <!--<groupId>org.springframework.cloud</groupId>-->
-        <!--<artifactId>spring-cloud-starter-parent</artifactId>-->
-        <!--<version>Angel.SR3</version>-->
-    <!--</parent>-->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.3.5.RELEASE</version>
+    </parent>
 
     <dependencies>
         <dependency>
