@@ -35,7 +35,7 @@ public class Qiniu implements Uploader {
             Auth auth = Auth.create(accessKey, secretKey);
             String token = auth.uploadToken(bucket);
             uploadManager.put(filePath, fileName, token);
-            return baseUrl + fileName;
+            return baseUrl + "/" + fileName;
         } catch (QiniuException e) {
             return null;
         }
