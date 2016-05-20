@@ -191,7 +191,7 @@ public class ClientAPI {
         }
 
         // upload to qiniu
-        String fileName =  String.format("%s&%s@%s.zip", app.name, packageName, packageVersion);
+        String fileName =  String.format("%s@%s@%s.zip", app.name, packageName, packageVersion);
         String url = uploader.upload(tempLocation, fileName);
         if (url == null) {
             response.code = 500;
