@@ -13,13 +13,49 @@ import org.springframework.stereotype.Component;
 
 @ConfigurationProperties(prefix="qiniu")
 @Component
-public class Qiniu {
+public class Qiniu implements Uploader {
 
     @NotEmpty
     public String accessKey;
 
     @NotEmpty
     public String secretKey;
+
+    @NotEmpty
+    public String bucket;
+
+    @NotEmpty
+    public String baseUrl;
+
+    private UploadManager uploadManager = new UploadManager();
+
+    @Override
+    public String upload(String filePath, String fileName) {
+        try {
+            Auth auth = Auth.create(accessKey, secretKey);
+            String token = auth.uploadToken(bucket);
+            uploadManager.put(filePath, fileName, token);
+            return baseUrl + fileName;
+        } catch (QiniuException e) {
+            return null;
+        }
+    }
+
+    public String getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
 
     public String getAccessKey() {
         return accessKey;
@@ -37,17 +73,5 @@ public class Qiniu {
         this.secretKey = secretKey;
     }
 
-    UploadManager uploadManager = new UploadManager();
-
-    public boolean upload(String bucket, String filePath, String fileName) {
-        try {
-            Auth auth = Auth.create(accessKey, secretKey);
-            String token = auth.uploadToken(bucket);
-            uploadManager.put(filePath, fileName, token);
-            return true;
-        } catch (QiniuException e) {
-            return false;
-        }
-    }
 
 }

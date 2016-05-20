@@ -12,7 +12,6 @@ public class CheckUpdatesRequest {
 
     public List<PackageRequirement> packageRequirements = new ArrayList<>();
 
-
     public static class PackageRequirement {
 
         public String name;

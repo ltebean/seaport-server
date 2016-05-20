@@ -6,6 +6,8 @@ This is the seaport server code. You need to deploy it to your own server.
 Change the configuation in appliation-{env}.yml, including:
 * db connection
 * Qiniu access key
+* Qiniu Bucket name
+* Qiniu Bucket base url
 
 #### 2. Init the db
 you can find the ddl in `src/main/resources/ddl`
@@ -19,9 +21,3 @@ mvn package
 ```bash
 java -jar seaport-server.jar --spring.profiles.active={env}
 ```
-
-#### 5. Create an App
-You need to first create a bucket for that app in Qiniu, then insert a record into the "App" table, specify these fields:
-* secret: the app secret, it will be used by the client
-* bucket: the bucket name in Qiniu
-* baseUrl: the bucket's base url

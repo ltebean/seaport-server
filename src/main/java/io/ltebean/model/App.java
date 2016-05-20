@@ -18,10 +18,6 @@ public class App {
 
     public String secret;
 
-    public String bucket;
-
-    public String baseUrl;
-
     public long userId;
 
     public List<Package> packages = new ArrayList<>();
@@ -36,7 +32,5 @@ public class App {
         } else {
             return availableOnes.get(0);
         }
-
     }
-
 }
