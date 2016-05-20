@@ -5,6 +5,5 @@ package io.ltebean.api.dto;
  */
 public class InfoRequest {
 
-    public String secret;
 
 }

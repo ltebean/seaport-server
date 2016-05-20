@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by ltebean on 16/5/6.
@@ -95,6 +96,17 @@ public class ClientAPI {
             return response;
         }
         String appName = createAppRequest.name;
+
+        List<App> appList = appMapper.findByUserId(user.id)
+                .stream()
+                .filter(a -> a.name.equals(appName))
+                .collect(Collectors.toList());
+        if (!appList.isEmpty()) {
+            response.code = 403;
+            response.message = "App already exists";
+            return response;
+        }
+
         String secret = BCrypt.hashpw(user.name + appName, BCrypt.gensalt());
         App app = new App();
         app.name = appName;
@@ -130,7 +142,7 @@ public class ClientAPI {
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/v1/app/package")
-    public Response<Map> uploadPackage(@RequestParam("secret") String secret,
+    public Response<Map> uploadPackage(@RequestParam("appName") String appName,
                                        @RequestParam("packageName") String packageName,
                                        @RequestParam("packageVersion") String packageVersion,
                                        @RequestParam("file") MultipartFile file,
@@ -153,13 +165,18 @@ public class ClientAPI {
             return response;
         }
 
-        App app = appMapper.findBySecret(secret);
+        List<App> appList = appMapper.findByUserId(user.id)
+                .stream()
+                .filter(a -> a.name.equals(appName))
+                .collect(Collectors.toList());
 
-        if (app == null) {
+        if (appList.isEmpty()) {
             response.code = 404;
             response.message = "App not found";
             return response;
         }
+
+        App app = appList.get(0);
 
         if (app.userId != user.id) {
             response.code = 403;
