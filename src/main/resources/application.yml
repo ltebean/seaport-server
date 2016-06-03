@@ -1,3 +1,7 @@
 spring:
   application:
     name: seaport-server
+
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    type: org.apache.tomcat.jdbc.pool.DataSource

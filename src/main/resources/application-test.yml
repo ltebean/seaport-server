@@ -3,7 +3,6 @@ spring:
     username: cloud_pre_1user
     password: Tsad12_S38Ar6
     url: jdbc:mysql://rm-uf6z52258ri17j73go.mysql.rds.aliyuncs.com:3306/Seaport?useUnicode=true&characterEncoding=utf-8
-    driver-class-name: com.mysql.jdbc.Driver
 
 qiniu:
   accessKey: k1k_lcCFc9PzpRSnECppmJbl_KDr5rgmXcBncmXn
