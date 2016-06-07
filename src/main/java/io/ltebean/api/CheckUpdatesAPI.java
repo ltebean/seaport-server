@@ -42,12 +42,12 @@ public class CheckUpdatesAPI {
 
 
     @RequestMapping(value = "/api/v1/check_updates", method = RequestMethod.POST)
-    public Response<List<Package>> checkUpdates(@RequestBody CheckUpdatesRequest request) {
+    public Response checkUpdates(@RequestBody CheckUpdatesRequest request) {
         App app = appMapper.findBySecret(request.secret);
         if (app != null) {
             app.packages = packageMapper.findByAppId(app.id);
         }
-        Response<List<Package>> response = new Response<>();
+        Response response = new Response();
         if (app == null) {
             response.code = 404;
             return response;

@@ -2,6 +2,7 @@ package io.ltebean.api;
 
 import com.github.zafarkhaja.semver.Version;
 import io.ltebean.api.dto.*;
+import io.ltebean.api.exception.UnauthorizedException;
 import io.ltebean.mapper.AppMapper;
 import io.ltebean.mapper.PackageMapper;
 import io.ltebean.mapper.UserMapper;
@@ -50,9 +51,9 @@ public class ClientAPI {
     Uploader uploader;
 
     @RequestMapping(value = "/api/v1/user/signup", method = RequestMethod.POST)
-    public Response<String> signup(@RequestBody SignupRequest request) {
+    public Response signup(@RequestBody SignupRequest request) {
         User userInDB = userMapper.findByName(request.name);
-        Response<String> response = new Response<>();
+        Response response = new Response();
         if (userInDB != null) {
             response.code = 400;
             response.message = "User already exists";
@@ -68,9 +69,9 @@ public class ClientAPI {
     }
 
     @RequestMapping(value = "/api/v1/user/login", method = RequestMethod.POST)
-    public Response<String> login(@RequestBody LoginRequest request) {
+    public Response login(@RequestBody LoginRequest request) {
         User user = userMapper.findByName(request.name);
-        Response<String> response = new Response<>();
+        Response response = new Response();
         if (user == null) {
             response.code = 404;
             response.message = "User not found";
@@ -88,14 +89,12 @@ public class ClientAPI {
     }
 
     @RequestMapping(value = "/api/v1/app", method = RequestMethod.POST)
-    public Response<String> createApp(@RequestBody CreateAppRequest createAppRequest, HttpServletRequest request) {
-        Response<String> response = new Response<>();
+    public Response createApp(@RequestBody CreateAppRequest createAppRequest, HttpServletRequest request) {
         User user = getUserFromRequest(request);
         if (user == null) {
-            response.code = 403;
-            response.message = "Unauthorized request";
-            return response;
+            throw new UnauthorizedException();
         }
+        Response response = new Response();
         String appName = createAppRequest.name;
 
         List<App> appList = appMapper.findByUserId(user.id)
@@ -121,16 +120,13 @@ public class ClientAPI {
 
 
     @RequestMapping(value = "/api/v1/app/info", method = RequestMethod.POST)
-    public Response<List<App>> getInfo(@RequestBody InfoRequest infoRequest, HttpServletRequest request) {
-        Response<List<App>> response = new Response<>();
-
+    public Response getInfo(@RequestBody InfoRequest infoRequest, HttpServletRequest request) {
         User user = getUserFromRequest(request);
         if (user == null) {
-            response.code = 403;
-            response.message = "Unauthorized request";
-            return response;
+            throw new UnauthorizedException();
         }
 
+        Response response = new Response();
         List<App> apps = appMapper.findByUserId(user.id);
         for (App app : apps) {
             app.packages = packageMapper.findByAppId(app.id);
@@ -142,19 +138,17 @@ public class ClientAPI {
 
 
     @RequestMapping(method = RequestMethod.POST, value = "/api/v1/app/package")
-    public Response<Map> uploadPackage(@RequestParam("appName") String appName,
+    public Response uploadPackage(@RequestParam("appName") String appName,
                                        @RequestParam("packageName") String packageName,
                                        @RequestParam("packageVersion") String packageVersion,
                                        @RequestParam("file") MultipartFile file,
                                        HttpServletRequest request) {
 
-        Response<Map> response = new Response<>();
+        Response response = new Response();
 
         User user = getUserFromRequest(request);
         if (user == null) {
-            response.code = 403;
-            response.message = "Unauthorized request";
-            return response;
+            throw new UnauthorizedException();
         }
 
         try {
