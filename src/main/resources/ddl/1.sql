@@ -2,7 +2,7 @@ CREATE TABLE `App` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
   `userId` bigint(20) unsigned NOT NULL,
-  `secret` varchar(128) NOT NULL DEFAULT '',
+  `secret` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `secret` (`secret`),
   KEY `userId` (`userId`)
@@ -21,7 +21,7 @@ CREATE TABLE `Package` (
 CREATE TABLE `User` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) DEFAULT NULL,
-  `token` varchar(128) DEFAULT NULL,
+  `token` varchar(32) DEFAULT NULL,
   `passwordHash` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),

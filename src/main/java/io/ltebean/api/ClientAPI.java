@@ -12,6 +12,7 @@ import io.ltebean.uploader.Uploader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
@@ -60,7 +61,7 @@ public class ClientAPI {
         User user = new User();
         user.name = request.name;
         user.passwordHash = BCrypt.hashpw(request.password, BCrypt.gensalt());
-        user.token = BCrypt.hashpw(request.name + request.password, BCrypt.gensalt());
+        user.token = new Md5PasswordEncoder().encodePassword(request.name + request.password, null);
         userMapper.create(user);
         response.data = user.token;
         return response;
@@ -106,8 +107,7 @@ public class ClientAPI {
             response.message = "App already exists";
             return response;
         }
-
-        String secret = BCrypt.hashpw(user.name + appName, BCrypt.gensalt());
+        String secret = new Md5PasswordEncoder().encodePassword(user.name + appName, null);
         App app = new App();
         app.name = appName;
         app.secret = secret;
