@@ -5,3 +5,6 @@ spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     type: org.apache.tomcat.jdbc.pool.DataSource
+
+logging:
+  config: classpath:logback/logback-daily-rolling.xml

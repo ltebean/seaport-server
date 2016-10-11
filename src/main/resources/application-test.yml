@@ -9,6 +9,3 @@ qiniu:
   secretKey: bA3ZI0LkcE54FeMSmlw2K2OPrltVv4UYm00Ftyfl
   bucket: seaport
   baseUrl: http://o7bfglfjr.bkt.clouddn.com
-
-logging:
-  path: /data/log

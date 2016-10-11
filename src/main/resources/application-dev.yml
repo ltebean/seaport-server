@@ -10,3 +10,5 @@ qiniu:
   bucket: seaport
   baseUrl: http://o7bfglfjr.bkt.clouddn.com
 
+logging:
+  config: classpath:logback/logback-console.xml
